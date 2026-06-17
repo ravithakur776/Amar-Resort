@@ -169,10 +169,17 @@ nav.scrolled {
 
 .nav-hamburger {
   display: none;
+  position: relative;
   flex-direction: column;
+  justify-content: center;
   gap: 5px;
+  width: 34px;
+  height: 34px;
   cursor: pointer;
   padding: 5px;
+  background: none;
+  border: none;
+  z-index: 1001;
 }
 
 .nav-hamburger span {
@@ -180,27 +187,55 @@ nav.scrolled {
   width: 24px;
   height: 1.5px;
   background: var(--gold-light);
-  transition: all 0.3s ease;
+  transition:
+    transform 0.4s cubic-bezier(0.65, 0, 0.35, 1),
+    opacity 0.3s ease;
+  transform-origin: center;
+}
+
+/* Morph into an X when the mobile nav is open */
+.nav-hamburger.active span:nth-child(1) {
+  transform: translateY(6.5px) rotate(45deg);
+}
+.nav-hamburger.active span:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.nav-hamburger.active span:nth-child(3) {
+  transform: translateY(-6.5px) rotate(-45deg);
 }
 
 .nav-mobile {
-  display: none;
+  display: flex;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
+  /* Escape the body's 3D perspective containing block so "fixed" anchors
+     to the real viewport instead of stretching to full document height */
+  transform-style: flat;
+  perspective: none;
   background: rgba(26, 24, 21, 0.98);
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   z-index: 999;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 2.5rem;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0.4s;
 }
 
 .nav-mobile.open {
-  display: flex;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 
 .nav-mobile a {
@@ -210,7 +245,38 @@ nav.scrolled {
   font-weight: 400;
   color: var(--ivory);
   letter-spacing: 0.05em;
-  transition: color 0.3s ease;
+  transition:
+    color 0.3s ease,
+    transform 0.3s ease;
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.nav-mobile.open a {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.nav-mobile.open a:nth-child(2) {
+  transition-delay: 0.06s;
+}
+.nav-mobile.open a:nth-child(3) {
+  transition-delay: 0.11s;
+}
+.nav-mobile.open a:nth-child(4) {
+  transition-delay: 0.16s;
+}
+.nav-mobile.open a:nth-child(5) {
+  transition-delay: 0.21s;
+}
+.nav-mobile.open a:nth-child(6) {
+  transition-delay: 0.26s;
+}
+.nav-mobile.open a:nth-child(7) {
+  transition-delay: 0.31s;
+}
+.nav-mobile.open a:nth-child(8) {
+  transition-delay: 0.36s;
 }
 
 .nav-mobile a:hover {
@@ -2265,11 +2331,12 @@ html {
   scroll-padding-top: 90px;
 }
 
-body {
-  perspective: 1600px;
-  transform-style: preserve-3d;
-}
-
+/* Note: body intentionally has no perspective/transform-style here.
+   Both properties create a 3D rendering context that breaks
+   position:fixed for descendants (nav-mobile, lightbox, floating-cta),
+   making them anchor to the full document height instead of the
+   viewport. Each section already sets its own perspective below,
+   so the 3D tilt/depth effects are unaffected. */
 section {
   transform-style: preserve-3d;
   perspective: 1400px;
@@ -2684,4 +2751,78 @@ nav,
   .about-img-accent {
     transform: none !important;
   }
+}
+
+/* ============================================================
+   FIXES & 3D BEAUTIFICATION UPGRADES
+   ============================================================ */
+
+/* 1. Fix Mobile Menu overlapping issue */
+.nav-mobile {
+  z-index: 10005 !important; /* Forces the mobile menu above everything */
+}
+
+/* 2. Floating Action Buttons - Fixed across the entire site */
+.floating-cta {
+  z-index: 9999 !important; /* Ensures it never hides behind footers or sections */
+}
+
+/* Eye-catching glowing pulse animations for the floating buttons */
+.fab-wa {
+  animation: pulse-wa 2s infinite;
+}
+
+.fab-phone {
+  animation: pulse-phone 2s infinite;
+  animation-delay: 1s; /* Offsets the pulse so they alternate */
+}
+
+@keyframes pulse-wa {
+  0% {
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 15px rgba(37, 211, 102, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+  }
+}
+
+@keyframes pulse-phone {
+  0% {
+    box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 15px rgba(201, 168, 76, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(201, 168, 76, 0);
+  }
+}
+
+/* 3. Upgraded 3D Hover Effects for all cards */
+.room-card,
+.amenity-card,
+.testimonial-card,
+.weddings-feature,
+.contact-card {
+  /* Smoother, bouncier transition curve */
+  transition:
+    transform 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+    border-color 0.6s ease !important;
+}
+
+.room-card:hover,
+.amenity-card:hover,
+.testimonial-card:hover,
+.weddings-feature:hover {
+  /* Dramatic 3D pop-out effect on hover */
+  transform: translate3d(0, calc(var(--lift, 0px) - 12px), 40px)
+    rotateX(calc(var(--rx, 0deg) * 1.8)) rotateY(calc(var(--ry, 0deg) * 1.8))
+    scale(1.04) !important;
+  box-shadow: 0 30px 60px rgba(201, 168, 76, 0.25) !important;
+  border-color: rgba(201, 168, 76, 0.6);
+  z-index: 10;
 }
