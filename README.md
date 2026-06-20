@@ -81,5 +81,3 @@ The Amar Resort, Mathura
 📍 Managal Bazar, Near Township, Indupuram Colony, Mathura – 281006, UP, India
 📞 +91 70426 71269 · +91 98370 52274 · +91 80770 05303
 📸 [@theamarresortmathura](https://www.instagram.com/theamarresortmathura)
-
-
